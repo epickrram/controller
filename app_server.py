@@ -74,6 +74,8 @@ class App(object):
         server.serve_forever()
 
 if __name__ == '__main__':
+    reload(sys)
+    sys.setdefaultencoding('UTF8')
     media_index = index_builder.MediaIndex(sys.argv[1])
     media_index.build()
     play_queue = player.PlayQueue()

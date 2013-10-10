@@ -58,11 +58,12 @@ class MediaIndex(object):
             self.index[search_term] = entries_for_search_term
 
     def build(self):
+        num_files = 0
         for root, dirs, files in os.walk(self.base_dir):
             for filename in files:
                 file_tag = normalise(filename)
-                self.search_terms.add(file_tag)
-                file_tags = set([file_tag])
+                #self.search_terms.add(file_tag)
+                file_tags = set()
                 for dir_node in os.path.abspath(root).split('/')[self.base_dir_entry_length:]:
                     file_tags.add(dir_node)
                 entry = Entry(file_tag, os.path.abspath(root + '/' + filename))
@@ -70,9 +71,11 @@ class MediaIndex(object):
                     entry.add_tag(tag)
                     self.search_terms.add(tag)
                 self.entries.add(entry)
-                print filename + ' -> ' + str(file_tags)
+                num_files += 1
+                if num_files % 100 == 0:
+                    print 'processed {0} files'.format(num_files)
 
-                self.generate()
+        self.generate()
 
 
 if '__main__' == __name__:
