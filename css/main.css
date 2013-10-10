@@ -1,0 +1,8 @@
+DIV, UL, LI, SPAN, LABEL {
+    font-family: sans;
+    font-size: 1em;
+}
+
+DIV {
+    padding: 4px;
+}
