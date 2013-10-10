@@ -2,6 +2,9 @@ import dbus
 import threading
 import time
 import Queue
+import logging
+
+logging.basicConfig(filename='player.log', level=logging.DEBUG)
 
 class PlayQueue(object):
     def __init__(self):
@@ -10,9 +13,13 @@ class PlayQueue(object):
 
     def enqueue(self, tag, entry_list):
         self.lock.acquire()
+        logging.debug('tag enqueued: {0}, entry count: {1}'.format(tag, len(entry_list)))
         self.tag_queue.append(QueueEntry(tag, entry_list))
+        logging.debug('tag queue length now: {0}'.format(len(self.tag_queue)))
         self.lock.release()
-        print self.tag_queue
+
+    def to_string(self):
+        return ""
 
     def peek(self):
         val = None
@@ -24,7 +31,9 @@ class PlayQueue(object):
     def pop(self):
         val = None
         self.lock.acquire()
-        val = self.tag_queue.pop()
+        val = self.tag_queue[0]
+        del self.tag_queue[0]
+        logging.debug('queue entry removed, tag queue length now: {0}'.format(len(self.tag_queue)))
         self.lock.release()
         return val
 
@@ -38,7 +47,7 @@ class PlayQueue(object):
     def get(self):
         val = None
         self.lock.acquire()
-        val = frozenset(self.tag_queue)
+        val = list(self.tag_queue)
         self.lock.release()
         return val
 
@@ -73,12 +82,19 @@ class MusicPlayer(object):
 
     def ping(self):
         if self.state in ['IDLE'] and not self.play_queue.is_empty():
+            logging.debug('player is idle, and entries existing in the play queue')
             queue_entry = self.play_queue.peek()
             if len(queue_entry.entry_list) is not 0:
+                logging.debug('queue entry "{0}" has files to play..'.format(queue_entry.tag))
                 entry = queue_entry.entry_list.pop()
                 self.play(entry.full_path)
                 if len(queue_entry.entry_list) is 0:
+                    logging.debug('queue entry has no more files to play, removing from list')
                     self.play_queue.pop()
+                else:
+                    logging.debug('queue entry has more files to play...')
+            else:
+                logging.debug('hmmm.. a queue entry "{0}" with an empty list was left'.format(queue_entry.tag))
         elif self.state == 'PLAYING':
             if(self.get_play_state() != 3):
                 self.state = 'IDLE'

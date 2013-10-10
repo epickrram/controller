@@ -1,4 +1,5 @@
 $(document).ready(function() {
+    var timeoutId;
     $( "#tags" ).autocomplete({
       source: getMatchingTags
     });
@@ -58,7 +59,10 @@ $(document).ready(function() {
                     $('#currentSong').html('');
                 }
             }
-            setTimeout(getServerStatus, 1000);
+            if(timeoutId !== undefined) {
+                clearTimeout(timeoutId);
+            }
+            timeoutId = setTimeout(getServerStatus, 3000);
         });
        
     }
@@ -81,4 +85,5 @@ $(document).ready(function() {
     });
 
     getServerStatus();
+    $('.selector').focus();
 });
