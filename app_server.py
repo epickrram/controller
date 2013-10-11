@@ -5,6 +5,7 @@ import sys
 import index_builder
 import player
 import json
+import logging
 
 class ServerWrapper(BaseHTTPServer.HTTPServer):
     def set_app(self, app):
@@ -76,8 +77,10 @@ class App(object):
 if __name__ == '__main__':
     reload(sys)
     sys.setdefaultencoding('UTF8')
+    logging.info('indexing media files in "{0}"'.format(sys.argv[1]))
     media_index = index_builder.MediaIndex(sys.argv[1])
     media_index.build()
+    logging.info('built index')
     play_queue = player.PlayQueue()
     app = App(media_index, play_queue, player.MusicPlayer(play_queue))
     app.start()

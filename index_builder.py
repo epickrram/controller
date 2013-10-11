@@ -3,6 +3,7 @@
 import os
 import os.path
 import sys
+import logging
 
 def normalise(filename):
     return ' '.join(filename.replace('_', '.').replace('-', '.').split('.')[:-1])
@@ -74,6 +75,7 @@ class MediaIndex(object):
                 num_files += 1
                 if num_files % 100 == 0:
                     print 'processed {0} files'.format(num_files)
+                    logging.info('processed {0} files'.format(num_files))
 
         self.generate()
 
